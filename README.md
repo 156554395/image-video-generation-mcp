@@ -11,7 +11,7 @@
 - 🛡️ **错误处理**: 内置重试机制和详细错误信息
 - 📝 **TypeScript**: 完整的类型安全支持
 - 🔧 **调试支持**: 内置 MCP Inspector 和 VS Code 调试配置
-- 🎯 **无水印**: 默认生成无水印内容（可配置）
+- 🎯 **无水印**: 默认生成无水印内容（可以在 bigmodel.cn 安全管理中去掉水印）
 
 ## 安装
 
@@ -26,17 +26,19 @@ pnpm add -g image-video-generation-mcp
 ### 申请步骤
 
 1. **访问 BigModel 开放平台**
+
    - 打开浏览器访问：[https://bigmodel.cn/](https://bigmodel.cn/)
    - 点击右上角"登录"或"注册"
 
 2. **注册/登录账号**
+
    - 使用手机号或邮箱注册账号
    - 完成实名认证（根据平台要求）
    - 登录到开发者控制台
 
 3. **获取 API Key**
-   - 点击右上角头像，找到 API Key后点击进入
-   - 添加新的API Key（注意保密）
+   - 点击右上角头像，找到 API Key 后点击进入
+   - 添加新的 API Key（注意保密）
 
 ### 费用说明
 
@@ -47,12 +49,12 @@ pnpm add -g image-video-generation-mcp
 
 ### 模型定价
 
-| 模型类型 | 模型名称 | 费用类型 | 推荐场景 |
-|---------|---------|---------|---------|
-| 图像生成 | cogview-3-flash | 免费/低成本 | 快速原型、日常使用 |
-| 图像生成 | cogview-4 | 付费 | 高质量图像、专业用途 |
-| 视频生成 | cogvideox-flash | 付费 | 快速视频生成 |
-| 视频生成 | cogvideox-3 | 付费 | 标准质量视频 |
+| 模型类型 | 模型名称        | 费用类型    | 推荐场景             |
+| -------- | --------------- | ----------- | -------------------- |
+| 图像生成 | cogview-3-flash | 免费/低成本 | 快速原型、日常使用   |
+| 图像生成 | cogview-4       | 付费        | 高质量图像、专业用途 |
+| 视频生成 | cogvideox-flash | 付费        | 快速视频生成         |
+| 视频生成 | cogvideox-3     | 付费        | 标准质量视频         |
 
 > 💡 **建议**: 开发和测试阶段建议使用免费模型（cogview-3-flash），生产环境根据需求选择付费模型。
 
@@ -96,11 +98,10 @@ export IMAGE_VIDEO_GENERATION_DEFAULT_VIDEO_MODEL="cogvideox-flash"
   "mcpServers": {
     "image-video-generation": {
       "command": "npx",
-      "args": ["image-video-generation-mcp"],
+      "args": ["image-video-generation-mcp@latest"],
       "env": {
         "IMAGE_VIDEO_GENERATION_API_KEY": "your_api_key"
-      },
-      "transportType": "stdio"
+      }
     }
   }
 }
@@ -113,9 +114,9 @@ export IMAGE_VIDEO_GENERATION_DEFAULT_VIDEO_MODEL="cogvideox-flash"
 
 ### 环境变量说明
 
-| 环境变量                                     | 必需 | 默认值              | 说明             |
-| -------------------------------------------- | ---- | ------------------- | ---------------- |
-| `IMAGE_VIDEO_GENERATION_API_KEY`             | ✅   | -                   | API 密钥         |
+| 环境变量                                     | 必需 | 默认值            | 说明             |
+| -------------------------------------------- | ---- | ----------------- | ---------------- |
+| `IMAGE_VIDEO_GENERATION_API_KEY`             | ✅   | -                 | API 密钥         |
 | `IMAGE_VIDEO_GENERATION_DEFAULT_IMAGE_MODEL` | ❌   | `cogview-3-flash` | 默认图像生成模型 |
 | `IMAGE_VIDEO_GENERATION_DEFAULT_VIDEO_MODEL` | ❌   | `cogvideox-flash` | 默认视频生成模型 |
 
@@ -221,11 +222,13 @@ npm publish
 通过 `package.json` 中的 `files` 字段和 `.npmignore` 文件，发布包将只包含：
 
 **包含的文件：**
+
 - `dist/` - 构建后的 JavaScript 和 TypeScript 声明文件
 - `README.md` - 项目文档
 - `LICENSE` - 许可证文件
 
 **排除的文件：**
+
 - `src/` - 源代码目录
 - `scripts/` - 开发脚本
 - 测试文件和调试文件
