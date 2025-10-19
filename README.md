@@ -107,6 +107,8 @@ export IMAGE_VIDEO_GENERATION_DEFAULT_VIDEO_MODEL="cogvideox-flash"
 }
 ```
 
+> **重要说明**: MCP 服务器通过 stdio 进行通信，所以直接运行 `npx image-video-generation-mcp@latest` 会看起来像是"卡住"或"无法运行"，这是正常现象。服务器正在等待来自 MCP 客户端的输入。
+
 > **注意**: 模型配置是可选的，如果不设置环境变量，将使用默认模型：
 >
 > - 默认图像模型: `cogview-3-flash`
