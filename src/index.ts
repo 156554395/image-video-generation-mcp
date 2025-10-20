@@ -433,9 +433,8 @@ async function main(): Promise<void> {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch((error) => {
-    console.error('Server startup error:', error);
-    process.exit(1);
-  });
-}
+// 直接调用 main 函数，因为这是 CLI 入口文件
+main().catch((error) => {
+  console.error('Server startup error:', error);
+  process.exit(1);
+});
