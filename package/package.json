@@ -1,6 +1,6 @@
 {
   "name": "image-video-generation-mcp",
-  "version": "1.0.3",
+  "version": "1.0.2",
   "description": "MCP server for image and video generation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

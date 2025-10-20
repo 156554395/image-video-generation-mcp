@@ -78,6 +78,10 @@ export class Config {
     };
 
     if (!this.config.apiKey) {
+      console.error('❌ MCP Server Configuration Error:');
+      console.error('   API Key is required but not provided.');
+      console.error('   Please set the IMAGE_VIDEO_GENERATION_API_KEY environment variable.');
+      console.error('   Example: IMAGE_VIDEO_GENERATION_API_KEY=your_api_key npx image-video-generation-mcp');
       throw new Error('API Key is required. Set IMAGE_VIDEO_GENERATION_API_KEY environment variable or pass in config.');
     }
   }
