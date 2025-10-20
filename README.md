@@ -368,6 +368,51 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 感谢所有为这个项目做出贡献的开发者！
 
+## 故障排除
+
+### MCP 连接问题
+
+如果遇到 MCP 连接不上的问题，请检查以下几点：
+
+1. **API Key 配置**：确保已正确设置 `IMAGE_VIDEO_GENERATION_API_KEY` 环境变量
+   ```bash
+   # 测试 API Key 是否正确配置
+   IMAGE_VIDEO_GENERATION_API_KEY=your_api_key npx image-video-generation-mcp@latest
+   ```
+
+2. **网络连接**：确保能访问 `https://open.bigmodel.cn/api`
+
+3. **版本问题**：使用最新版本
+   ```bash
+   # 清除 npm 缓存并使用最新版本
+   npm cache clean --force
+   npx -y image-video-generation-mcp@latest
+   ```
+
+4. **配置文件格式**：确保 MCP 配置文件格式正确
+   ```json
+   {
+     "mcpServers": {
+       "image-video-generation": {
+         "command": "npx",
+         "args": ["-y", "image-video-generation-mcp@latest"],
+         "env": {
+           "IMAGE_VIDEO_GENERATION_API_KEY": "your_actual_api_key_here"
+         },
+         "type": "stdio"
+       }
+     }
+   }
+   ```
+
+5. **错误日志**：如果仍有问题，请查看 MCP 客户端的错误日志
+
+### 常见错误
+
+- **"API Key is required"**：需要设置 `IMAGE_VIDEO_GENERATION_API_KEY` 环境变量
+- **"command not found"**：npm 缓存问题，尝试清除缓存或等待几分钟
+- **连接超时**：检查网络连接和防火墙设置
+
 ## 支持
 
 如有问题，请提交 [GitHub Issues](https://github.com/156554395/image-video-generation-mcp/issues)。
