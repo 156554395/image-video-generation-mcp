@@ -1,6 +1,6 @@
 # MCP Image Video Generation Server
 
-一个用于图像和视频生成的 MCP (Model Context Protocol) 服务器，支持 BigModel AI 平台的 CogView 和 CogVideoX 模型。
+一个免费生成图像和视频的 MCP (Model Context Protocol) 服务器，支持 BigModel AI 平台的 CogView 和 CogVideoX 模型。
 
 ## 功能
 
