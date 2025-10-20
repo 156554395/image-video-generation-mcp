@@ -424,20 +424,8 @@ class ImageVideoGenerationMCPServer {
 
 async function main(): Promise<void> {
   try {
-    console.error('🚀 Starting MCP Image Video Generation Server...');
-    console.error('📝 Environment:', process.env.NODE_ENV || 'production');
-
     const config = new Config();
-    console.error('🔧 Configuration loaded:');
-    console.error('  - API Key:', config.apiKey ? '***configured***' : 'missing');
-    console.error('  - Base URL:', config.baseUrl);
-    console.error('  - Default Image Model:', config.defaultImageModel);
-    console.error('  - Default Video Model:', config.defaultVideoModel);
-    console.error('  - Timeout:', config.timeout + 'ms');
-
     const server = new ImageVideoGenerationMCPServer(config);
-    console.error('🌐 MCP Server created, starting...');
-
     await server.run();
   } catch (error) {
     console.error('❌ Failed to start MCP server:', error);
