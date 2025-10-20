@@ -98,10 +98,11 @@ export IMAGE_VIDEO_GENERATION_DEFAULT_VIDEO_MODEL="cogvideox-flash"
   "mcpServers": {
     "image-video-generation": {
       "command": "npx",
-      "args": ["image-video-generation-mcp@latest"],
+      "args": ["-y", "image-video-generation-mcp@latest"],
       "env": {
         "IMAGE_VIDEO_GENERATION_API_KEY": "your_api_key"
-      }
+      },
+      "type": "stdio"
     }
   }
 }

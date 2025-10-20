@@ -1,5 +1,3 @@
-# Dependencies
-node_modules/
 
 # Source code (only include built files in dist/)
 src/
