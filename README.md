@@ -53,7 +53,7 @@ pnpm add -g image-video-generation-mcp
 | -------- | --------------- | ----------- | -------------------- |
 | 图像生成 | cogview-3-flash | 免费/低成本 | 快速原型、日常使用   |
 | 图像生成 | cogview-4       | 付费        | 高质量图像、专业用途 |
-| 视频生成 | cogvideox-flash | 付费        | 快速视频生成         |
+| 视频生成 | cogvideox-flash | 免费        | 快速视频生成         |
 | 视频生成 | cogvideox-3     | 付费        | 标准质量视频         |
 
 > 💡 **建议**: 开发和测试阶段建议使用免费模型（cogview-3-flash），生产环境根据需求选择付费模型。
