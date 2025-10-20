@@ -32,7 +32,6 @@ class ImageVideoGenerationMCPServer {
   }
 
   private setupToolHandlers(): void {
-    console.log('🔧 Setting up tool handlers...');
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
         tools: [
@@ -425,19 +424,19 @@ class ImageVideoGenerationMCPServer {
 
 async function main(): Promise<void> {
   try {
-    console.log('🚀 Starting MCP Image Video Generation Server...');
-    console.log('📝 Environment:', process.env.NODE_ENV || 'production');
+    console.error('🚀 Starting MCP Image Video Generation Server...');
+    console.error('📝 Environment:', process.env.NODE_ENV || 'production');
 
     const config = new Config();
-    console.log('🔧 Configuration loaded:');
-    console.log('  - API Key:', config.apiKey ? '***configured***' : 'missing');
-    console.log('  - Base URL:', config.baseUrl);
-    console.log('  - Default Image Model:', config.defaultImageModel);
-    console.log('  - Default Video Model:', config.defaultVideoModel);
-    console.log('  - Timeout:', config.timeout + 'ms');
+    console.error('🔧 Configuration loaded:');
+    console.error('  - API Key:', config.apiKey ? '***configured***' : 'missing');
+    console.error('  - Base URL:', config.baseUrl);
+    console.error('  - Default Image Model:', config.defaultImageModel);
+    console.error('  - Default Video Model:', config.defaultVideoModel);
+    console.error('  - Timeout:', config.timeout + 'ms');
 
     const server = new ImageVideoGenerationMCPServer(config);
-    console.log('🌐 MCP Server created, starting...');
+    console.error('🌐 MCP Server created, starting...');
 
     await server.run();
   } catch (error) {
