@@ -27,7 +27,7 @@ pnpm add -g image-video-generation-mcp
 
 1. **访问 BigModel 开放平台**
 
-   - 打开浏览器访问：[https://bigmodel.cn/](https://bigmodel.cn/)
+   - 打开浏览器访问：[https://www.bigmodel.cn/claude-code?ic=QHPPFCALMK](https://bigmodel.cn/)
    - 点击右上角"登录"或"注册"
 
 2. **注册/登录账号**
