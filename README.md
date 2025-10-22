@@ -5,6 +5,7 @@
 ## 功能
 
 - 🎨 **图像生成**: 使用 CogView 模型（cogview-4, cogview-4-250304, cogview-3-flash）生成高质量图像，默认使用 cogview-3-flash 免费模型
+- 🚀 **批量图像生成**: **[新功能]** 支持一次性生成1-100张图像，具备并行处理和灵活批次管理能力
 - 🎬 **视频生成**: 使用 CogVideoX 模型（cogvideox-3, cogvideox-2, cogvideox-flash）生成视频，默认使用 cogvideox-flash 模型
 - ⚙️ **配置管理**: 支持环境变量配置和动态设置更新
 - 🔄 **异步处理**: 支持视频生成任务状态查询和自动等待完成
@@ -127,7 +128,7 @@ export IMAGE_VIDEO_GENERATION_DEFAULT_VIDEO_MODEL="cogvideox-flash"
 
 #### 1. generate_image
 
-生成图像，支持以下参数：
+生成单张图像，支持以下参数：
 
 - `prompt` (必需): 图像描述文本
 - `model`: 模型选择 (`cogview-4`, `cogview-4-250304`, `cogview-3-flash`)
@@ -136,7 +137,38 @@ export IMAGE_VIDEO_GENERATION_DEFAULT_VIDEO_MODEL="cogvideox-flash"
 - `watermark_enabled`: 是否添加水印
 - `user_id`: 用户追踪 ID
 
-#### 2. generate_video
+#### 2. batch_generate_images 🆕
+
+**[新功能]** 批量生成多张图像，支持1-100个提示词，具备并行处理能力。
+
+**基础参数：**
+- `prompts` (必需): 提示词数组，最多100个
+- `model`: 模型选择 (`cogview-4`, `cogview-4-250304`, `cogview-3-flash`)
+- `quality`: 图像质量 (`standard`, `hd`)
+- `size`: 图像尺寸 (例如 `1024x1024`)
+- `watermark_enabled`: 是否添加水印
+- `user_id`: 用户追踪 ID
+
+**批次管理参数：**
+- `batch_size`: 每批处理的提示词数量 (1-20，默认4)
+- `parallel`: 是否并行处理 (默认true)
+- `max_concurrent`: 最大并发数 (1-10，默认3)
+- `delay_between_batches`: 批次间延迟(毫秒，0-10000，默认1000)
+
+**使用示例：**
+```json
+{
+  "prompts": ["小猫玩耍", "城市夜景", "程序员工作"],
+  "model": "cogview-3-flash",
+  "batch_size": 3,
+  "parallel": true,
+  "max_concurrent": 2
+}
+```
+
+📖 **详细使用指南**: [BATCH_GENERATION_GUIDE.md](./BATCH_GENERATION_GUIDE.md)
+
+#### 3. generate_video
 
 生成视频，支持以下参数：
 
@@ -149,13 +181,13 @@ export IMAGE_VIDEO_GENERATION_DEFAULT_VIDEO_MODEL="cogvideox-flash"
 - `with_audio`: 是否启用 AI 生成音频
 - `watermark_enabled`: 是否控制水印
 
-#### 3. query_video_result
+#### 4. query_video_result
 
 查询异步视频生成任务结果：
 
 - `task_id` (必需): 视频生成任务返回的 ID
 
-#### 4. wait_for_video
+#### 5. wait_for_video
 
 等待视频生成完成并返回结果：
 
@@ -163,7 +195,7 @@ export IMAGE_VIDEO_GENERATION_DEFAULT_VIDEO_MODEL="cogvideox-flash"
 - `max_wait_time`: 最大等待时间 (默认 300000 毫秒)
 - `poll_interval`: 轮询间隔 (默认 5000 毫秒)
 
-#### 5. configure_models
+#### 6. configure_models
 
 配置默认模型和设置：
 

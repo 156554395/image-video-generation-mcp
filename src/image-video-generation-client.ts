@@ -4,7 +4,9 @@ import {
   ImageGenerationParams,
   VideoGenerationParams,
   AsyncResult,
-  ImageGenerationResponse
+  ImageGenerationResponse,
+  BatchImageGenerationParams,
+  BatchImageGenerationResult
 } from './config.js';
 import { ApiError, NetworkError } from './errors.js';
 
@@ -159,6 +161,140 @@ export class ImageVideoGenerationClient {
       'Video generation timed out',
       'TIMEOUT_ERROR'
     );
+  }
+
+  async generateBatchImages(params: BatchImageGenerationParams): Promise<BatchImageGenerationResult> {
+    const {
+      prompts,
+      model,
+      quality,
+      size,
+      watermark_enabled,
+      user_id,
+      batch_size = 4,
+      parallel = true,
+      max_concurrent = 3,
+      delay_between_batches = 1000
+    } = params;
+
+    if (!prompts || prompts.length === 0) {
+      throw new ApiError('At least one prompt is required for batch generation', 'INVALID_PARAMS');
+    }
+
+    if (prompts.length > 100) {
+      throw new ApiError('Maximum 100 prompts allowed per batch', 'TOO_MANY_PROMPTS');
+    }
+
+    const startTime = Date.now();
+    const results: BatchImageGenerationResult['results'] = [];
+    const batches: string[][] = [];
+
+    // 将提示词分批
+    for (let i = 0; i < prompts.length; i += batch_size) {
+      batches.push(prompts.slice(i, i + batch_size));
+    }
+
+    let successfulGenerations = 0;
+    let failedGenerations = 0;
+
+    // 处理批次
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      const currentBatch = batches[batchIndex];
+
+      if (parallel) {
+        // 并行处理当前批次
+        const batchPromises = currentBatch.map(async (prompt) => {
+          try {
+            const imageParams: ImageGenerationParams = {
+              prompt,
+              model: model || this.config.defaultImageModel,
+              quality: quality || 'standard',
+              size: size || '1024x1024',
+              watermark_enabled: watermark_enabled !== undefined ? watermark_enabled : true,
+              user_id,
+            };
+
+            const response = await this.generateImage(imageParams);
+            successfulGenerations++;
+
+            return {
+              prompt,
+              success: true,
+              images: response.data,
+              created: response.created,
+            };
+          } catch (error) {
+            failedGenerations++;
+            return {
+              prompt,
+              success: false,
+              error: error instanceof Error ? error.message : String(error),
+            };
+          }
+        });
+
+        // 限制并发数
+        const limitedPromises = [];
+        for (let i = 0; i < batchPromises.length; i += max_concurrent) {
+          const concurrentBatch = batchPromises.slice(i, i + max_concurrent);
+          limitedPromises.push(Promise.all(concurrentBatch));
+        }
+
+        const batchResults = await Promise.all(limitedPromises);
+        results.push(...batchResults.flat());
+      } else {
+        // 串行处理
+        for (const prompt of currentBatch) {
+          try {
+            const imageParams: ImageGenerationParams = {
+              prompt,
+              model: model || this.config.defaultImageModel,
+              quality: quality || 'standard',
+              size: size || '1024x1024',
+              watermark_enabled: watermark_enabled !== undefined ? watermark_enabled : true,
+              user_id,
+            };
+
+            const response = await this.generateImage(imageParams);
+            successfulGenerations++;
+
+            results.push({
+              prompt,
+              success: true,
+              images: response.data,
+              created: response.created,
+            });
+          } catch (error) {
+            failedGenerations++;
+            results.push({
+              prompt,
+              success: false,
+              error: error instanceof Error ? error.message : String(error),
+            });
+          }
+        }
+      }
+
+      // 批次间延迟（除了最后一批）
+      if (batchIndex < batches.length - 1 && delay_between_batches > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay_between_batches));
+      }
+    }
+
+    const endTime = Date.now();
+    const processingTime = endTime - startTime;
+
+    return {
+      total_prompts: prompts.length,
+      successful_generations: successfulGenerations,
+      failed_generations: failedGenerations,
+      results,
+      batch_summary: {
+        total_batches: batches.length,
+        processing_time: processingTime,
+        average_time_per_batch: processingTime / batches.length,
+      },
+    };
   }
 
   updateConfig(updates: any): void {

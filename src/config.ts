@@ -63,6 +63,40 @@ export interface ImageGenerationResponse {
   };
 }
 
+export interface BatchImageGenerationParams {
+  prompts: string[];
+  model?: string;
+  quality?: 'standard' | 'hd';
+  size?: string;
+  watermark_enabled?: boolean;
+  user_id?: string;
+  batch_size?: number;
+  parallel?: boolean;
+  max_concurrent?: number;
+  delay_between_batches?: number;
+}
+
+export interface BatchImageGenerationResult {
+  total_prompts: number;
+  successful_generations: number;
+  failed_generations: number;
+  results: Array<{
+    prompt: string;
+    success: boolean;
+    images?: Array<{
+      url: string;
+      revised_prompt?: string;
+    }>;
+    error?: string;
+    created?: number;
+  }>;
+  batch_summary: {
+    total_batches: number;
+    processing_time: number;
+    average_time_per_batch: number;
+  };
+}
+
 export class Config {
   private config: ImageVideoGenerationConfig;
 

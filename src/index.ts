@@ -78,6 +78,80 @@ class ImageVideoGenerationMCPServer {
             },
           } as Tool,
           {
+            name: 'batch_generate_images',
+            description: '批量生成多张图像，支持并行处理和批次管理',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                prompts: {
+                  type: 'array',
+                  description: '提示词数组，最多支持100个',
+                  items: {
+                    type: 'string',
+                    minLength: 1,
+                    maxLength: 4000,
+                  },
+                  minItems: 1,
+                  maxItems: 100,
+                },
+                model: {
+                  type: 'string',
+                  description: '使用的模型 (cogview-4, cogview-4-250304, cogview-3-flash)',
+                  enum: ['cogview-4', 'cogview-4-250304', 'cogview-3-flash'],
+                },
+                quality: {
+                  type: 'string',
+                  description: '图像质量',
+                  enum: ['standard', 'hd'],
+                  default: 'standard',
+                },
+                size: {
+                  type: 'string',
+                  description: '图像尺寸 (例如: 1024x1024, 1024x1792)',
+                  default: '1024x1024',
+                },
+                watermark_enabled: {
+                  type: 'boolean',
+                  description: '是否添加水印',
+                  default: true,
+                },
+                user_id: {
+                  type: 'string',
+                  description: '用户ID，用于跟踪 (6-128个字符)',
+                  minLength: 6,
+                  maxLength: 128,
+                },
+                batch_size: {
+                  type: 'number',
+                  description: '每批处理的提示词数量',
+                  minimum: 1,
+                  maximum: 20,
+                  default: 4,
+                },
+                parallel: {
+                  type: 'boolean',
+                  description: '是否并行处理批次内的请求',
+                  default: true,
+                },
+                max_concurrent: {
+                  type: 'number',
+                  description: '并行处理时的最大并发数',
+                  minimum: 1,
+                  maximum: 10,
+                  default: 3,
+                },
+                delay_between_batches: {
+                  type: 'number',
+                  description: '批次间的延迟时间（毫秒）',
+                  minimum: 0,
+                  maximum: 10000,
+                  default: 1000,
+                },
+              },
+              required: ['prompts'],
+            },
+          } as Tool,
+          {
             name: 'generate_video',
             description: 'Generate videos using BigModel CogVideoX models',
             inputSchema: {
@@ -212,6 +286,9 @@ class ImageVideoGenerationMCPServer {
           case 'generate_image':
             return await this.handleGenerateImage(args);
 
+          case 'batch_generate_images':
+            return await this.handleBatchGenerateImages(args);
+
           case 'generate_video':
             return await this.handleGenerateVideo(args);
 
@@ -274,6 +351,77 @@ class ImageVideoGenerationMCPServer {
           text: response.data.map(img => img.url).join('\n'),
         },
       ],
+    };
+  }
+
+  private async handleBatchGenerateImages(args: any) {
+    const response = await this.client.generateBatchImages(args);
+
+    // 统计成功和失败的生成
+    const successfulResults = response.results.filter(r => r.success);
+    const failedResults = response.results.filter(r => !r.success);
+
+    let summaryMessage = `批量图像生成完成！\n\n` +
+      `📊 总体统计:\n` +
+      `  • 总提示词数: ${response.total_prompts}\n` +
+      `  • 成功生成: ${response.successful_generations}\n` +
+      `  • 生成失败: ${response.failed_generations}\n` +
+      `  • 成功率: ${((response.successful_generations / response.total_prompts) * 100).toFixed(1)}%\n\n` +
+      `⏱️ 处理时间:\n` +
+      `  • 总批次: ${response.batch_summary.total_batches}\n` +
+      `  • 总处理时间: ${(response.batch_summary.processing_time / 1000).toFixed(2)}秒\n` +
+      `  • 平均每批次: ${(response.batch_summary.average_time_per_batch / 1000).toFixed(2)}秒\n\n`;
+
+    if (successfulResults.length > 0) {
+      summaryMessage += `✅ 成功生成的图像 (${successfulResults.length}个):\n`;
+      successfulResults.forEach((result, index) => {
+        const createdTime = result.created ? new Date(result.created * 1000).toISOString() : 'N/A';
+        summaryMessage += `  ${index + 1}. 提示词: "${result.prompt.substring(0, 50)}${result.prompt.length > 50 ? '...' : ''}"\n` +
+          `     图像数量: ${result.images?.length || 0}\n` +
+          `     创建时间: ${createdTime}\n`;
+        if (result.images && result.images.length > 0) {
+          result.images.forEach((img, imgIndex) => {
+            summaryMessage += `     图像 ${imgIndex + 1}: ${img.url}\n`;
+            if (img.revised_prompt) {
+              summaryMessage += `     修订提示词: ${img.revised_prompt}\n`;
+            }
+          });
+        }
+        summaryMessage += '\n';
+      });
+    }
+
+    if (failedResults.length > 0) {
+      summaryMessage += `❌ 生成失败的提示词 (${failedResults.length}个):\n`;
+      failedResults.forEach((result, index) => {
+        summaryMessage += `  ${index + 1}. 提示词: "${result.prompt.substring(0, 50)}${result.prompt.length > 50 ? '...' : ''}"\n` +
+          `     错误: ${result.error}\n\n`;
+      });
+    }
+
+    // 准备内容数组
+    const contentArray = [{
+      type: 'text' as const,
+      text: summaryMessage,
+    }];
+
+    // 添加纯文本的URL列表，方便复制使用
+    const allImageUrls: string[] = [];
+    successfulResults.forEach(result => {
+      if (result.images) {
+        allImageUrls.push(...result.images.map(img => img.url));
+      }
+    });
+
+    if (allImageUrls.length > 0) {
+      contentArray.push({
+        type: 'text' as const,
+        text: allImageUrls.join('\n'),
+      });
+    }
+
+    return {
+      content: contentArray,
     };
   }
 
